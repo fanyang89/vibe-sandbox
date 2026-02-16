@@ -10,7 +10,7 @@ func newGoCmd(rootOpts *rootOptions) *cobra.Command {
 	opts := goOptions{}
 	cmd := &cobra.Command{
 		Use:   "go",
-		Short: "Create worktree, start docker, and run codex --yolo",
+		Short: "Create worktree, start docker, and run opencode",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			mgr, err := newManager(rootOpts.sandboxRoot)
 			if err != nil {
@@ -41,8 +41,8 @@ func newGoCmd(rootOpts *rootOptions) *cobra.Command {
 				return fmt.Errorf("resolve runtime failed; sandbox is preserved, use `vibe done --name %s` to cleanup: %w", meta.Name, err)
 			}
 
-			if err := runCodexContainer(meta, runtime, opts.command); err != nil {
-				return fmt.Errorf("run codex failed; sandbox is preserved, use `vibe done --name %s` to cleanup: %w", meta.Name, err)
+			if err := runOpenCodeContainer(meta, runtime, opts.command); err != nil {
+				return fmt.Errorf("run opencode failed; sandbox is preserved, use `vibe done --name %s` to cleanup: %w", meta.Name, err)
 			}
 			return nil
 		},

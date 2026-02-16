@@ -24,7 +24,7 @@ func shortHash(input string) string {
 }
 
 func containerName(name string) string {
-	return "codex-sb-" + normalizeName(name)
+	return "opencode-sb-" + normalizeName(name)
 }
 
 var validNamePattern = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
