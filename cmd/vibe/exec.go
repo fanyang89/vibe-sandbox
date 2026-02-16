@@ -56,7 +56,7 @@ func runInteractiveCommand(name string, args ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("%s %s: %w", name, strings.Join(args, " "), err)
+		return fmt.Errorf("%s: %w", name, err)
 	}
 	return nil
 }
