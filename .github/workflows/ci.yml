@@ -56,4 +56,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build sandbox image
-        run: docker build -t vibe-ci-test -f docker/Dockerfile.codex-sandbox .
+        run: docker build -t vibe-ci-test -f docker/Dockerfile.opencode-sandbox .
