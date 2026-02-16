@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -175,7 +174,7 @@ func buildDevcontainerImage(devcontainerPath string, build devcontainerBuild) (s
 	}
 	args = append(args, contextPath)
 
-	if err := runCommand("", os.Stdout, os.Stderr, "docker", args...); err != nil {
+	if err := runCommandFn("", os.Stdout, os.Stderr, "docker", args...); err != nil {
 		return "", fmt.Errorf("build devcontainer image: %w", err)
 	}
 	return tag, nil
@@ -220,11 +219,7 @@ func runOpenCodeContainer(meta *sandboxMeta, runtime *runtimeSpec, command strin
 
 	dockerArgs = append(dockerArgs, runtime.Image, "bash", "-lc", command)
 
-	cmd := exec.Command("docker", dockerArgs...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
+	if err := interactiveCommandFn("docker", dockerArgs...); err != nil {
 		return fmt.Errorf("docker run: %w", err)
 	}
 	return nil
@@ -293,7 +288,7 @@ func expandWorkspaceVariables(value, worktree string) string {
 
 func runningContainers() map[string]bool {
 	result := map[string]bool{}
-	out, err := commandOutput("", "docker", "ps", "--format", "{{.Names}}")
+	out, err := commandOutputFn("", "docker", "ps", "--format", "{{.Names}}")
 	if err != nil {
 		return result
 	}
