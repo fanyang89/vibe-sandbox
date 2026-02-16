@@ -11,7 +11,7 @@ func resolveBaseRef(repoRoot, base string) (string, error) {
 	if base != "" {
 		return base, nil
 	}
-	current, err := gitOutput(repoRoot, "rev-parse", "--abbrev-ref", "HEAD")
+	current, err := gitOutputFn(repoRoot, "rev-parse", "--abbrev-ref", "HEAD")
 	if err != nil {
 		return "", fmt.Errorf("detect current branch: %w", err)
 	}
@@ -27,7 +27,7 @@ func createPR(meta *sandboxMeta, base, title, body string, draft bool) error {
 		prBase = base
 	}
 
-	if err := runCommand(meta.Worktree, os.Stdout, os.Stderr, "git", "push", "-u", "origin", meta.Branch); err != nil {
+	if err := runCommandFn(meta.Worktree, os.Stdout, os.Stderr, "git", "push", "-u", "origin", meta.Branch); err != nil {
 		return fmt.Errorf("push branch: %w", err)
 	}
 
@@ -45,7 +45,7 @@ func createPR(meta *sandboxMeta, base, title, body string, draft bool) error {
 		ghArgs = append(ghArgs, "--draft")
 	}
 
-	out, err := commandOutput(meta.Worktree, "gh", ghArgs...)
+	out, err := commandOutputFn(meta.Worktree, "gh", ghArgs...)
 	if err != nil {
 		return fmt.Errorf("create pr: %w", err)
 	}

@@ -48,11 +48,11 @@ func resolveSandboxRoot(repoRoot, root string) string {
 }
 
 func detectRepoRoot() (string, error) {
-	topLevel, err := gitOutput("", "rev-parse", "--show-toplevel")
+	topLevel, err := gitOutputFn("", "rev-parse", "--show-toplevel")
 	if err != nil {
 		return "", fmt.Errorf("not in git repository: %w", err)
 	}
-	commonDir, err := gitOutput("", "rev-parse", "--git-common-dir")
+	commonDir, err := gitOutputFn("", "rev-parse", "--git-common-dir")
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +84,7 @@ func (m *manager) createSandbox(name, baseRef, branchPrefix string) (*sandboxMet
 	}
 
 	branch := fmt.Sprintf("%s/%s", branchPrefix, name)
-	if err := runCommand(m.repoRoot, os.Stdout, os.Stderr, "git", "worktree", "add", "-b", branch, worktree, baseRef); err != nil {
+	if err := runCommandFn(m.repoRoot, os.Stdout, os.Stderr, "git", "worktree", "add", "-b", branch, worktree, baseRef); err != nil {
 		return nil, fmt.Errorf("create worktree: %w", err)
 	}
 
@@ -97,20 +97,20 @@ func (m *manager) createSandbox(name, baseRef, branchPrefix string) (*sandboxMet
 		CreatedAt: time.Now().Format(time.RFC3339),
 	}
 	if err := m.saveSandbox(meta); err != nil {
-		_ = runCommand(m.repoRoot, io.Discard, io.Discard, "git", "worktree", "remove", worktree, "--force")
+		_ = runCommandFn(m.repoRoot, io.Discard, io.Discard, "git", "worktree", "remove", worktree, "--force")
 		return nil, err
 	}
 	return meta, nil
 }
 
 func (m *manager) destroySandbox(meta *sandboxMeta, force, deleteBranch bool) error {
-	_ = commandOutputNoErr("", "docker", "rm", "-f", meta.Container)
+	_ = commandOutputNoErrFn("", "docker", "rm", "-f", meta.Container)
 
 	removeArgs := []string{"worktree", "remove", meta.Worktree}
 	if force {
 		removeArgs = append(removeArgs, "--force")
 	}
-	if err := runCommand(m.repoRoot, os.Stdout, os.Stderr, "git", removeArgs...); err != nil {
+	if err := runCommandFn(m.repoRoot, os.Stdout, os.Stderr, "git", removeArgs...); err != nil {
 		return fmt.Errorf("remove worktree: %w", err)
 	}
 
@@ -119,7 +119,7 @@ func (m *manager) destroySandbox(meta *sandboxMeta, force, deleteBranch bool) er
 		if force {
 			branchDeleteFlag = "-D"
 		}
-		if err := runCommand(m.repoRoot, os.Stdout, os.Stderr, "git", "branch", branchDeleteFlag, meta.Branch); err != nil {
+		if err := runCommandFn(m.repoRoot, os.Stdout, os.Stderr, "git", "branch", branchDeleteFlag, meta.Branch); err != nil {
 			return fmt.Errorf("delete branch: %w", err)
 		}
 	}

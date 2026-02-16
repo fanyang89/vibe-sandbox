@@ -8,6 +8,14 @@ import (
 	"strings"
 )
 
+var (
+	runCommandFn         = runCommand
+	commandOutputFn      = commandOutput
+	commandOutputNoErrFn = commandOutputNoErr
+	gitOutputFn          = gitOutput
+	interactiveCommandFn = runInteractiveCommand
+)
+
 func runCommand(dir string, stdout, stderr io.Writer, name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
@@ -40,6 +48,17 @@ func gitOutput(dir string, args ...string) (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(out), nil
+}
+
+func runInteractiveCommand(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("%s %s: %w", name, strings.Join(args, " "), err)
+	}
+	return nil
 }
 
 func exitf(format string, args ...any) {
