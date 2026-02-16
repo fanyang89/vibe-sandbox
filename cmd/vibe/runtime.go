@@ -181,7 +181,7 @@ func buildDevcontainerImage(devcontainerPath string, build devcontainerBuild) (s
 	return tag, nil
 }
 
-func runCodexContainer(meta *sandboxMeta, runtime *runtimeSpec, command string) error {
+func runOpenCodeContainer(meta *sandboxMeta, runtime *runtimeSpec, command string) error {
 	if runtime == nil {
 		runtime = &runtimeSpec{Image: defaultImage}
 	}
@@ -243,7 +243,10 @@ func defaultMounts() []string {
 		{host: filepath.Join(home, ".gitconfig"), ctr: "/root/.gitconfig", ro: true},
 		{host: filepath.Join(home, ".git-credentials"), ctr: "/root/.git-credentials", ro: true},
 		{host: filepath.Join(home, ".ssh"), ctr: "/root/.ssh", ro: true},
-		{host: filepath.Join(home, ".codex"), ctr: "/root/.codex", ro: false},
+		{host: filepath.Join(home, ".config", "opencode"), ctr: "/root/.config/opencode", ro: false},
+		{host: filepath.Join(home, ".local", "share", "opencode"), ctr: "/root/.local/share/opencode", ro: false},
+		{host: filepath.Join(home, ".local", "state", "opencode"), ctr: "/root/.local/state/opencode", ro: false},
+		{host: filepath.Join(home, ".cache", "opencode"), ctr: "/root/.cache/opencode", ro: false},
 		{host: filepath.Join(home, ".config", "gh"), ctr: "/root/.config/gh", ro: true},
 	}
 	args := make([]string, 0, len(mounts)*2)

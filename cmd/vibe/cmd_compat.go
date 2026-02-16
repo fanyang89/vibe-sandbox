@@ -64,7 +64,7 @@ func newRunCmd(rootOpts *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return runCodexContainer(meta, runtime, opts.command)
+			return runOpenCodeContainer(meta, runtime, opts.command)
 		},
 	}
 	cmd.Flags().StringVar(&opts.name, "name", "", "sandbox name")

@@ -1,17 +1,19 @@
 # vibe
 
-`vibe` is a sandbox orchestrator for Codex workflows.
-It creates isolated `git worktree` environments, launches Docker, runs `codex --yolo`, and then cleans everything up.
+`vibe` is a sandbox orchestrator for OpenCode workflows.
+It creates isolated `git worktree` environments, launches Docker, runs
+`opencode`, and then cleans everything up.
 
 ## Workflow
 
-- `vibe go`: create worktree + start container + run Codex
+- `vibe go`: create worktree + start container + run OpenCode
 - `vibe done`: optionally create PR, then destroy resources
 - `vibe done --all`: one-click destroy all sandboxes
 
 ## Features
 
-- High-concurrency sandbox model: each sandbox has its own worktree, branch, metadata, and container name
+- High-concurrency sandbox model: each sandbox has its own worktree, branch,
+  metadata, and container name
 - Docker image customization via `--image`
 - Devcontainer-compatible runtime resolution via `--devcontainer`
 - Optional PR creation with `gh` before cleanup
@@ -24,13 +26,14 @@ go build -o bin/vibe ./cmd/vibe
 
 ## Quick Start
 
-1. Build a default image (optional, used when no devcontainer/image is provided):
+1. Build a default image (optional, used when no devcontainer/image is
+   provided):
 
 ```bash
-docker build -t codex-sandbox:latest -f docker/Dockerfile.codex-sandbox .
+docker build -t opencode-sandbox:latest -f docker/Dockerfile.opencode-sandbox .
 ```
 
-2. Start a sandbox and run Codex interactively:
+2. Start a sandbox and run OpenCode interactively:
 
 ```bash
 ./bin/vibe go --name feat-login --base main
@@ -49,7 +52,7 @@ docker build -t codex-sandbox:latest -f docker/Dockerfile.codex-sandbox .
 ./bin/vibe go --name feat-login --base main
 
 # Use a custom image
-./bin/vibe go --name feat-login --image ghcr.io/acme/codex:latest
+./bin/vibe go --name feat-login --image ghcr.io/acme/opencode:latest
 
 # Use a custom devcontainer config path
 ./bin/vibe go --name feat-login --devcontainer .devcontainer/devcontainer.json
@@ -72,7 +75,8 @@ docker build -t codex-sandbox:latest -f docker/Dockerfile.codex-sandbox .
 
 ## Devcontainer Compatibility
 
-When `--devcontainer` points to a valid `devcontainer.json`, `vibe` supports these fields:
+When `--devcontainer` points to a valid `devcontainer.json`, `vibe` supports
+these fields:
 
 - `image`
 - `build` (string or object, with `dockerfile`, `context`, `args`)
@@ -90,7 +94,7 @@ Resolution order:
 1. `--image` (highest priority)
 2. `devcontainer.image`
 3. Build from devcontainer Dockerfile/context
-4. Fallback to `codex-sandbox:latest`
+4. Fallback to `opencode-sandbox:latest`
 
 ## Host Mounts and Env Passthrough
 
@@ -99,7 +103,10 @@ When available, `vibe` mounts:
 - `~/.gitconfig`
 - `~/.git-credentials`
 - `~/.ssh`
-- `~/.codex`
+- `~/.config/opencode`
+- `~/.local/share/opencode`
+- `~/.local/state/opencode`
+- `~/.cache/opencode`
 - `~/.config/gh`
 
 And forwards these env vars when present:
@@ -114,6 +121,7 @@ And forwards these env vars when present:
 
 ## Notes
 
-- `vibe done --all` does not create PRs. Use per-sandbox `vibe done --name <name> --pr` if you need PR creation.
+- `vibe done --all` does not create PRs. Use per-sandbox
+  `vibe done --name <name> --pr` if you need PR creation.
 - `vibe pr` remains available for explicit PR creation.
 - Hidden compatibility commands still exist: `create`, `run`, `destroy`.

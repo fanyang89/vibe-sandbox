@@ -3,10 +3,10 @@ package main
 import "encoding/json"
 
 const (
-	defaultSandboxDir   = ".codex-sandboxes"
-	defaultBranchPrefix = "codex"
-	defaultImage        = "codex-sandbox:latest"
-	defaultRunCommand   = "codex --yolo"
+	defaultSandboxDir   = ".opencode-sandboxes"
+	defaultBranchPrefix = "opencode"
+	defaultImage        = "opencode-sandbox:latest"
+	defaultRunCommand   = "opencode"
 )
 
 type manager struct {
