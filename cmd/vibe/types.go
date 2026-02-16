@@ -4,6 +4,7 @@ import "encoding/json"
 
 const (
 	defaultSandboxDir   = ".opencode-sandboxes"
+	legacySandboxDir    = ".codex-sandboxes"
 	defaultBranchPrefix = "opencode"
 	defaultImage        = "opencode-sandbox:latest"
 	defaultRunCommand   = "opencode"

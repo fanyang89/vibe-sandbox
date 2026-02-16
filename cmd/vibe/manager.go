@@ -18,10 +18,7 @@ func newManager(root string) (*manager, error) {
 		return nil, err
 	}
 
-	sandboxRoot := root
-	if sandboxRoot == "" {
-		sandboxRoot = filepath.Join(repoRoot, defaultSandboxDir)
-	}
+	sandboxRoot := resolveSandboxRoot(repoRoot, root)
 	if !filepath.IsAbs(sandboxRoot) {
 		sandboxRoot = filepath.Join(repoRoot, sandboxRoot)
 	}
@@ -31,6 +28,23 @@ func newManager(root string) (*manager, error) {
 	}
 
 	return &manager{repoRoot: repoRoot, sandboxRoot: sandboxRoot, metaDir: metaDir}, nil
+}
+
+func resolveSandboxRoot(repoRoot, root string) string {
+	if root != "" {
+		return root
+	}
+
+	defaultRoot := filepath.Join(repoRoot, defaultSandboxDir)
+	legacyRoot := filepath.Join(repoRoot, legacySandboxDir)
+
+	if _, err := os.Stat(defaultRoot); err == nil {
+		return defaultRoot
+	}
+	if _, err := os.Stat(legacyRoot); err == nil {
+		return legacyRoot
+	}
+	return defaultRoot
 }
 
 func detectRepoRoot() (string, error) {

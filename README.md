@@ -121,6 +121,9 @@ And forwards these env vars when present:
 
 ## Notes
 
+- By default, `vibe` uses `.opencode-sandboxes`. For backward compatibility,
+  if that directory does not exist but `.codex-sandboxes` exists, `vibe`
+  automatically uses the legacy sandbox root.
 - `vibe done --all` does not create PRs. Use per-sandbox
   `vibe done --name <name> --pr` if you need PR creation.
 - `vibe pr` remains available for explicit PR creation.

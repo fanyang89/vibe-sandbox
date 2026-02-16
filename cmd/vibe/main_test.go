@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestNormalizeName(t *testing.T) {
 	cases := []struct {
@@ -44,5 +48,55 @@ func TestShortHashDeterministic(t *testing.T) {
 	}
 	if len(a) != 12 {
 		t.Fatalf("shortHash length mismatch, got %d", len(a))
+	}
+}
+
+func TestResolveSandboxRootUsesDefaultWhenNoExistingDirs(t *testing.T) {
+	repoRoot := t.TempDir()
+
+	got := resolveSandboxRoot(repoRoot, "")
+	want := filepath.Join(repoRoot, defaultSandboxDir)
+	if got != want {
+		t.Fatalf("resolveSandboxRoot() = %q, want %q", got, want)
+	}
+}
+
+func TestResolveSandboxRootFallsBackToLegacy(t *testing.T) {
+	repoRoot := t.TempDir()
+	legacyRoot := filepath.Join(repoRoot, legacySandboxDir)
+	if err := os.MkdirAll(legacyRoot, 0o755); err != nil {
+		t.Fatalf("create legacy dir: %v", err)
+	}
+
+	got := resolveSandboxRoot(repoRoot, "")
+	if got != legacyRoot {
+		t.Fatalf("resolveSandboxRoot() = %q, want %q", got, legacyRoot)
+	}
+}
+
+func TestResolveSandboxRootPrefersDefaultOverLegacy(t *testing.T) {
+	repoRoot := t.TempDir()
+	defaultRoot := filepath.Join(repoRoot, defaultSandboxDir)
+	legacyRoot := filepath.Join(repoRoot, legacySandboxDir)
+	if err := os.MkdirAll(defaultRoot, 0o755); err != nil {
+		t.Fatalf("create default dir: %v", err)
+	}
+	if err := os.MkdirAll(legacyRoot, 0o755); err != nil {
+		t.Fatalf("create legacy dir: %v", err)
+	}
+
+	got := resolveSandboxRoot(repoRoot, "")
+	if got != defaultRoot {
+		t.Fatalf("resolveSandboxRoot() = %q, want %q", got, defaultRoot)
+	}
+}
+
+func TestResolveSandboxRootUsesExplicitValue(t *testing.T) {
+	repoRoot := t.TempDir()
+	explicit := "custom-sandboxes"
+
+	got := resolveSandboxRoot(repoRoot, explicit)
+	if got != explicit {
+		t.Fatalf("resolveSandboxRoot() = %q, want %q", got, explicit)
 	}
 }
