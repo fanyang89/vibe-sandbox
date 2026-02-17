@@ -2,6 +2,8 @@ package main
 
 import (
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -51,7 +53,15 @@ func TestCommandOutputNoErr(t *testing.T) {
 }
 
 func TestGitOutput(t *testing.T) {
-	out, err := gitOutput("", "rev-parse", "--is-inside-work-tree")
+	repo := t.TempDir()
+	if _, err := commandOutput("", "git", "init", "-q", repo); err != nil {
+		t.Fatalf("git init returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(repo, "README.md"), []byte("x\n"), 0o644); err != nil {
+		t.Fatalf("write README.md returned error: %v", err)
+	}
+
+	out, err := gitOutput(repo, "rev-parse", "--is-inside-work-tree")
 	if err != nil {
 		t.Fatalf("gitOutput returned error: %v", err)
 	}
