@@ -157,16 +157,16 @@ func TestCreateSandboxSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("createSandbox returned error: %v", err)
 	}
-	if meta.Branch != "codex/feat-1" {
+	if meta.Branch != defaultBranchPrefix+"/feat-1" {
 		t.Fatalf("branch = %q, want default prefix branch", meta.Branch)
 	}
-	if meta.Container != "codex-sb-feat-1" {
+	if meta.Container != containerName("feat-1") {
 		t.Fatalf("container = %q", meta.Container)
 	}
 	if gotDir != m.repoRoot || gotName != "git" {
 		t.Fatalf("unexpected git invocation: dir=%q name=%q", gotDir, gotName)
 	}
-	wantArgs := []string{"worktree", "add", "-b", "codex/feat-1", filepath.Join(m.sandboxRoot, "feat-1"), "main"}
+	wantArgs := []string{"worktree", "add", "-b", defaultBranchPrefix + "/feat-1", filepath.Join(m.sandboxRoot, "feat-1"), "main"}
 	if !equalStrings(gotArgs, wantArgs) {
 		t.Fatalf("git args = %+v, want %+v", gotArgs, wantArgs)
 	}

@@ -284,11 +284,26 @@ func TestDefaultMounts(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(home, ".gitconfig"), []byte("[user]"), 0o644); err != nil {
 		t.Fatalf("write .gitconfig: %v", err)
 	}
+	if err := os.WriteFile(filepath.Join(home, ".git-credentials"), []byte("https://example.invalid\n"), 0o644); err != nil {
+		t.Fatalf("write .git-credentials: %v", err)
+	}
 	if err := os.MkdirAll(filepath.Join(home, ".ssh"), 0o755); err != nil {
 		t.Fatalf("mkdir .ssh: %v", err)
 	}
-	if err := os.MkdirAll(filepath.Join(home, ".codex"), 0o755); err != nil {
-		t.Fatalf("mkdir .codex: %v", err)
+	if err := os.MkdirAll(filepath.Join(home, ".config", "opencode"), 0o755); err != nil {
+		t.Fatalf("mkdir .config/opencode: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(home, ".local", "share", "opencode"), 0o755); err != nil {
+		t.Fatalf("mkdir .local/share/opencode: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(home, ".local", "state", "opencode"), 0o755); err != nil {
+		t.Fatalf("mkdir .local/state/opencode: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(home, ".cache", "opencode"), 0o755); err != nil {
+		t.Fatalf("mkdir .cache/opencode: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(home, ".config", "gh"), 0o755); err != nil {
+		t.Fatalf("mkdir .config/gh: %v", err)
 	}
 
 	got := defaultMounts()
@@ -296,9 +311,14 @@ func TestDefaultMounts(t *testing.T) {
 	sort.Strings(mounts)
 
 	want := []string{
-		filepath.Join(home, ".codex") + ":/root/.codex",
 		filepath.Join(home, ".gitconfig") + ":/root/.gitconfig:ro",
+		filepath.Join(home, ".git-credentials") + ":/root/.git-credentials:ro",
 		filepath.Join(home, ".ssh") + ":/root/.ssh:ro",
+		filepath.Join(home, ".config", "opencode") + ":/root/.config/opencode",
+		filepath.Join(home, ".local", "share", "opencode") + ":/root/.local/share/opencode",
+		filepath.Join(home, ".local", "state", "opencode") + ":/root/.local/state/opencode",
+		filepath.Join(home, ".cache", "opencode") + ":/root/.cache/opencode",
+		filepath.Join(home, ".config", "gh") + ":/root/.config/gh:ro",
 	}
 	sort.Strings(want)
 
@@ -307,7 +327,7 @@ func TestDefaultMounts(t *testing.T) {
 	}
 }
 
-func TestRunCodexContainerBuildsDockerArgs(t *testing.T) {
+func TestRunOpenCodeContainerBuildsDockerArgs(t *testing.T) {
 	origInteractive := interactiveCommandFn
 	t.Cleanup(func() { interactiveCommandFn = origInteractive })
 
@@ -351,8 +371,8 @@ func TestRunCodexContainerBuildsDockerArgs(t *testing.T) {
 		return nil
 	}
 
-	if err := runCodexContainer(meta, runtime, "echo hi"); err != nil {
-		t.Fatalf("runCodexContainer returned error: %v", err)
+	if err := runOpenCodeContainer(meta, runtime, "echo hi"); err != nil {
+		t.Fatalf("runOpenCodeContainer returned error: %v", err)
 	}
 	if gotName != "docker" {
 		t.Fatalf("interactive name = %q, want docker", gotName)
@@ -383,7 +403,7 @@ func TestRunCodexContainerBuildsDockerArgs(t *testing.T) {
 	}
 }
 
-func TestRunCodexContainerDefaultsRuntime(t *testing.T) {
+func TestRunOpenCodeContainerDefaultsRuntime(t *testing.T) {
 	origInteractive := interactiveCommandFn
 	t.Cleanup(func() { interactiveCommandFn = origInteractive })
 
@@ -401,8 +421,8 @@ func TestRunCodexContainerDefaultsRuntime(t *testing.T) {
 		return nil
 	}
 
-	if err := runCodexContainer(meta, nil, "pwd"); err != nil {
-		t.Fatalf("runCodexContainer returned error: %v", err)
+	if err := runOpenCodeContainer(meta, nil, "pwd"); err != nil {
+		t.Fatalf("runOpenCodeContainer returned error: %v", err)
 	}
 	if !runtimeHasPair(gotArgs, "-v", meta.Worktree+":/workspace") {
 		t.Fatalf("missing default workspace volume: %+v", gotArgs)
