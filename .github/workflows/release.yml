@@ -84,7 +84,10 @@ jobs:
           CGO_ENABLED=0 GOOS="$GOOS" GOARCH="$GOARCH" go build -trimpath -ldflags="-s -w" -o "$BIN_PATH" ./cmd/vibe
 
           tar -C "$BIN_DIR" -czf "dist/${ARTIFACT_BASE}.tar.gz" .
-          sha256sum "dist/${ARTIFACT_BASE}.tar.gz" > "dist/${ARTIFACT_BASE}.tar.gz.sha256"
+          (
+            cd dist
+            sha256sum "${ARTIFACT_BASE}.tar.gz" > "${ARTIFACT_BASE}.tar.gz.sha256"
+          )
 
           rm -rf "$BIN_DIR"
 
